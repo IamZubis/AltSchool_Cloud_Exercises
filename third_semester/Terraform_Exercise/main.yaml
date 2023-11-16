@@ -1,0 +1,54 @@
+---
+- name: Webservers Configurations
+  hosts: all
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+- hosts: all
+  tasks:
+  - name: Install Apache2 and PHP
+    apt:
+      pkg:
+        - apache2
+        - php
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+
+  - name: Start and Enable Apache2
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+
+  - name: Set timezone to Africa/Lagos
+    timezone:
+      name: Africa/Lagos
+
+  - name: Create root directory
+    file:
+      path: /var/www/html/
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: 0777
+
+  - name: Delete Apache Index file
+    file:
+      path: /var/www/html/index.html
+      state: absent
+
+  - name: Display hostname
+    synchronize:
+      src: /home/ibechuks/patrickaziken/
+      dest: /var/www/html/
+    notify: reload apache
+
+  handlers:
+  - name: reload apache
+    service:
+      name: apache2
+      state: reloaded

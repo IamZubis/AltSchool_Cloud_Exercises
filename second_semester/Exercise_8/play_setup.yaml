@@ -1,0 +1,36 @@
+---
+- hosts: all
+  user: vagrant
+  become: true
+  tasks:
+  - name: install updates
+    apt:
+      update_cache: yes
+      upgrade: dist
+  
+  - name: install apache
+    apt:
+      name: apache2
+      state: latest
+
+  - name: create default php file
+    file:
+      path: /var/www/html/index.php
+      state: touch
+
+  - name: delete index.html
+    file:
+      path: /var/www/html/index.html
+      state: absent
+
+  - name: copy content of file
+    copy:
+      src: index.php
+      dest: /var/www/html/index.php
+      owner: root
+      group: root
+      mode: 0644
+  
+  - name: set timezone to Africa/Lagos
+    timezone:
+      name: Africa/Lagos
